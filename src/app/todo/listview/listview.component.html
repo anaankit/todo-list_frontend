@@ -1,0 +1,311 @@
+<div *ngIf="!guestUserId">
+<nav class="navbar navbar-expand-lg navbar-light">
+
+  <div class="nav-item dropdown">
+  <a class="navbar-brand dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{currentUserDetails.firstName}} {{currentUserDetails.lastName}}</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+    <div class="dropdown-item">
+      <a (click)="logout()" href="javascript:void(0)">Logout</a>
+    </div>
+</div>
+</div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <!-- <li class="nav-item">
+        <a class="nav-link" href="#">&nbsp;</a>
+      </li> -->
+      <li class="nav-item">
+          <a class="nav-link" href="#">&nbsp;</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">&nbsp;</a>
+          </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i style="font-size: 30px;" class="fas fa-user-friends"></i>
+          </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+          <div style="padding:0.5%" *ngFor="let each of currentUserDetails.friendReq">
+          <div class="dropdown-item box1" >
+            {{each.fromName}}<br>
+            {{each.fromEmail}}<br>
+            <a href="javascript:(0)" (click)="acceptRequest($event)" id="acc{{each.fromUserId}}">Accept request</a>            
+          </div><br>
+        </div>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">&nbsp;</a>
+      </li>
+      <!-- <li class="nav-item">
+          <a class="nav-link" href="#">&nbsp;</a>
+        </li>      <li class="nav-item">
+            <a class="nav-link" href="#">&nbsp;</a>
+          </li>      <li class="nav-item">
+              <a class="nav-link" href="#">&nbsp;</a>
+            </li> -->
+      <li class="nav-item">
+        <button class="nav-link btn btn-outline-warning" (click)="undo()">Undo</button>
+      </li>
+    </ul>
+    <div  class="form-inline my-2 my-lg-2">
+      <input style="width:25vw" class="form-control mr-lg-2" id="navBarSearchForm" list="emails" [(ngModel)]="searchKey.email" (keyup)="searchEmailKeyUp($event)" placeholder="search user using email" type="text">
+      
+      <div class="border">
+      <datalist id="emails">
+        <div  *ngFor="let each of allUsersEmail" >
+        <option  value="{{each.email}}">  </option>
+          </div>
+      </datalist>
+    </div>
+    
+      <button (click)="searchFunction()" class="btn btn-outline-primary" type="submit">Search</button>
+    </div>
+  </div>
+</nav>
+<br>
+</div>
+
+<div class="container">
+<div *ngIf="searchResult">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <div class="box">
+        <div>{{searchResult.email}}</div>
+        <div>{{searchResult.firstName}}&nbsp;{{searchResult.lastName}}</div>
+
+        <div *ngIf="!requestAlreadySent">
+        <div *ngIf="!alreadyFrnd">
+        <a (click)="sendRequest()" href="javascript:void(0)">Send friend request</a>
+      </div>
+
+      <div *ngIf="alreadyFrnd">
+        friend&nbsp;<i class="fas fa-check"></i>
+      </div>
+    </div>
+
+    <div *ngIf="requestAlreadySent">
+      Friend request sent
+    </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div class="row">
+  
+  <div *ngIf="!guestUserId" style="padding:2%;" class="col-sm-2  scroll">
+    <span Style="text-align: right; font-size: 20px; font-weight: 600">&nbsp;Friend List</span>
+    <div class="box" style="margin-top:2%" *ngFor="let each of currentUserDetails.friendList">
+      {{each.fromName}}<br>
+      {{each.fromEmail}}<br>
+      <div style="font-size: 14px">
+      <a href="javascript:void(0)" (click)="goToUserList($event)" id="vl{{each.fromUserId}}">View {{each.fromName}}'s Lists </a>
+    </div>
+    </div>   
+  </div>
+
+
+<div>
+<div>
+<div class="add" style="font-size: 60px; display: inline"><a style="margin-left:2vw" (click) = "newList()" href="javascript:void(0)"><i class="fas fa-plus-circle"></i></a>
+
+  <span *ngIf="guestUserId">
+  <button class="btn btn-outline-warning btn-sm" (click)="undo()" style="font-size: 20px; margin-left:5vw; color:black">Undo</button>
+  </span>
+</div>
+
+</div>
+
+<div style="margin-top:5%"></div>
+<div class="container">
+
+
+    <div id="row" class="row">
+     
+      <div class="col" *ngFor="let list of allLists | orderBy:'list.createdOn , reverse:true'">      
+ 
+        <div style="padding:2%" class="card">
+            <div style="text-align: right" class="dropdown">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                </a>
+              
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a class="dropdown-item" (click)="editListTitle($event)" id="editL{{list.listId}}" href="javascript:void(0)">Edit</a>
+                  <a class="dropdown-item" (click)="deleteList($event)" id="delL{{list.listId}}" href="javascript:void(0)">Delete</a>
+
+                  <div *ngIf="!list.done">
+                  <a class="dropdown-item" (click)="markAsDone($event)" id="md{{list.listId}}" href="javascript:void(0)">Mark As Done</a>
+                </div>
+
+                <div *ngIf="list.done">
+                  <a class="dropdown-item" (click)="markAsOpen($event)" id="mo{{list.listId}}" href="javascript:void(0)">Mark As Open</a>
+                </div>
+
+                </div>
+              </div>
+          <!-- list name -->
+          <div>
+        <h4 style="padding:2%">{{list.listName}}&nbsp;<span style="font-size: 14px">{{list.done}}</span></h4>
+      </div>
+        <div style="padding:5%" *ngFor="let card of list.cards">
+
+          <!-- cards title -->
+          <div class="dropdown">
+          <div style="font-weight: 600" id="title{{list.listId}}">{{card.title}}&nbsp;<span style="font-size: 10px;">{{card.done}}</span>
+              
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">                  
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
+      
+            <a class="dropdown-item"   href="javascript:void(0)" (click)="editCardTitle($event)" id="editC{{list.listId}}-{{card.cardId}}">Edit <i class="fas fa-pen-square"></i></a>  
+            <a class="dropdown-item"   href="javascript:void(0)" (click)="deleteCard($event)" id="delC{{list.listId}}-{{card.cardId}}">Delete<i class="far fa-trash-alt"></i></a>
+            
+            <div *ngIf="!card.done">
+              <a class="dropdown-item"   href="javascript:void(0)" (click)="markCardAsDone($event)" id="mcd{{list.listId}}-{{card.cardId}}">Mark as Done</a>
+            </div>
+            
+            <div *ngIf="card.done">
+              <a class="dropdown-item"   href="javascript:void(0)" (click)="markCardAsOpen($event)" id="mco{{list.listId}}-{{card.cardId}}">Mark as Open</a>
+            </div>
+
+            </div>
+          </div>
+          </div>
+            <!-- edit card name -->
+            
+            
+
+           <div style="text-align: right; font-size: 12px">
+
+            <a id="as{{card.cardId}}" (click)="showAddSubCard($event)" href="javascript:void(0)"><i class="fas fa-plus"></i></a>
+
+          </div>
+            
+          <div id="i{{card.cardId}}"  style="display: none">
+
+              <input  (keyup)="addSubCard($event)" id="subContent{{list.listId}}-{{card.cardId}}"  rows="1" cols="50" class="form-control">    
+            </div>
+
+          <div style="padding:1%" *ngFor="let subcard of card.subcard">
+
+            <!-- subcards title -->
+            <ul>
+              <li>{{subcard.subCardTitle}}<span style="font-size: 10px"><a style="padding:2%" class="pull-right" href="javascript:void(0)" (click)="deleteSubCard($event)" id="delsc{{list.listId}}-{{card.cardId}}-{{subcard.subCardTitle}}">(delete)</a></span> </li>
+            </ul>
+
+          </div>
+
+        </div>
+
+        <!-- add card sign -->
+        <div>
+        <a id="add{{list.listId}}"  (click)="showAdd($event)" href="javascript:void(0)" style="text-align: left"><i class="fas fa-plus"></i><small>&nbsp; Add another card</small></a>
+      </div>
+
+      <!-- add card info after sign hide -->
+      <div class="a" id="af{{list.listId}}" style="padding:3%; display: none">
+        <div>
+        <input (keyup)="addCard($event)" id="content{{list.listId}}"  rows="1" cols="50" class="form-control">
+      </div>
+      <!-- end of card -->
+      </div>  
+      <!-- end of column -->
+
+    </div> 
+
+    <div style="margin-top:5%"></div>
+</div>
+
+</div>
+
+</div>
+<ng-template #modalContent let-close="close">
+  <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Create New Todo List</h5>
+            <button type="button" (click)="click(1,1)" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+             </div>
+
+             <div class="modal-body">
+               <input class="form-control" (keyup)="saveNewKeyUp($event)" [(ngModel)]="newListName" placeholder="name of list">
+             </div>
+             <div class="modal-footer">
+                <button type="button" (click)="saveNew()" class="btn btn-primary">Create</button>
+             </div>
+  </div>
+</ng-template>
+
+
+
+
+
+<ng-template #modalContent1 let-close="close">
+    <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Edit Card</h5>
+              <button type="button" class="close" (click)="click(1,1)" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+               </div>
+  
+               <div class="modal-body">
+                 <input class="form-control" (keyup)="saveEditedCardKeyUp($event)" [(ngModel)]="cardNameEdited" placeholder="card title">
+               </div>
+               <div class="modal-footer">
+                  <button type="button" (click)="saveEditedCard()" class="btn btn-primary">Save</button>
+               </div>
+    </div>
+  </ng-template>
+
+
+
+  <ng-template #modalContent2 let-close="close">
+      <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit List Name</h5>
+                <button type="button" class="close" (click)="click(1,1)" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                 </div>
+    
+                 <div class="modal-body">
+                   <input class="form-control" (keyup) = "saveEditedListKeyUp($event)" [(ngModel)]="ListNameEdited" placeholder="list title">
+                 </div>
+                 <div class="modal-footer">
+                    <button type="button" (click)="saveEditedList()" class="btn btn-primary">Save</button>
+                 </div>
+      </div>
+    </ng-template>
+
+
+    <ng-template #modalContent3 let-close="close">
+      <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">A change has been Made</h5>
+                <button type="button" class="close" (click)="click(1,1)" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                 </div>
+    
+                 <div class="modal-body">
+                   <p>{{changeInfo}}</p>
+                 </div>
+                 <div class="modal-footer">
+                    <button type="button" (click)="click(1,1)" class="btn btn-primary">Close</button>
+                 </div>
+      </div>
+    </ng-template>
